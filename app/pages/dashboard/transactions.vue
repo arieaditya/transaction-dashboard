@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { transactions } from '../../data/transactions'
-import type { Transaction, TransactionStatus } from '../../types/transaction'
+import { transactions } from '~/data/transactions'
+import type { Transaction, TransactionStatus } from '~/types/transaction'
 
 const search = ref('')
 const selectedStatus = ref<'ALL' | TransactionStatus>('ALL')
@@ -24,9 +23,11 @@ const statusOptions = ['ALL', 'PAID', 'PENDING', 'FAILED', 'REFUNDED'] as const
 
 const filteredTransactions = computed(() => {
   return transactions.filter((item) => {
+    const keyword = search.value.toLowerCase()
+
     const matchesSearch =
-      item.id.toLowerCase().includes(search.value.toLowerCase()) ||
-      item.customerName.toLowerCase().includes(search.value.toLowerCase())
+      item.id.toLowerCase().includes(keyword) ||
+      item.customerName.toLowerCase().includes(keyword)
 
     const matchesStatus =
       selectedStatus.value === 'ALL' || item.status === selectedStatus.value
@@ -56,16 +57,18 @@ const submitRefund = () => {
 
 <template>
   <v-container class="py-8">
-    <div class="d-flex align-center justify-space-between mb-6">
-      <div>
-        <h1 class="text-h4 font-weight-bold">Transactions</h1>
-        <p class="text-medium-emphasis">
-          Monitor payment activity and handle refunds.
-        </p>
-      </div>
-    </div>
+    <PageHeader
+      title="Transactions"
+      subtitle="Monitor payment activity, inspect transaction details, and handle refund requests."
+    >
+      <template #default>
+        <v-btn color="primary" prepend-icon="mdi-download">
+          Export CSV
+        </v-btn>
+      </template>
+    </PageHeader>
 
-    <v-card class="pa-4 mb-4">
+    <v-card class="pa-4 mb-4" rounded="lg">
       <v-row>
         <v-col cols="12" md="8">
           <v-text-field
@@ -73,6 +76,7 @@ const submitRefund = () => {
             label="Search by transaction ID or customer"
             variant="outlined"
             density="comfortable"
+            prepend-inner-icon="mdi-magnify"
             hide-details
           />
         </v-col>
@@ -90,55 +94,69 @@ const submitRefund = () => {
       </v-row>
     </v-card>
 
-    <v-card>
-      <v-data-table
-        :headers="headers"
-        :items="filteredTransactions"
-        :items-per-page="5"
-      >
-        <template #item.amount="{ item }">
-          {{ formatCurrency(item.amount) }}
-        </template>
+    <v-card rounded="lg">
+      <template v-if="filteredTransactions.length">
+        <v-data-table
+          :headers="headers"
+          :items="filteredTransactions"
+          :items-per-page="5"
+        >
+          <template #item.amount="{ item }">
+            {{ formatCurrency(item.amount) }}
+          </template>
 
-        <template #item.status="{ item }">
-          <StatusChip :status="item.status" />
-        </template>
+          <template #item.status="{ item }">
+            <StatusChip :status="item.status" />
+          </template>
 
-        <template #item.actions="{ item }">
-          <div class="d-flex ga-2">
-            <v-btn
-              size="small"
-              variant="text"
-              :to="`/transactions/${item.id}`"
-            >
-              View
-            </v-btn>
+          <template #item.actions="{ item }">
+            <div class="d-flex ga-2">
+              <v-btn
+                size="small"
+                variant="text"
+                :to="`/transactions/${item.id}`"
+              >
+                View
+              </v-btn>
 
-            <v-btn
-              size="small"
-              color="error"
-              variant="tonal"
-              :disabled="!item.refundable"
-              @click="openRefundDialog(item)"
-            >
-              Refund
-            </v-btn>
-          </div>
-        </template>
-      </v-data-table>
+              <v-btn
+                size="small"
+                color="error"
+                variant="tonal"
+                :disabled="!item.refundable"
+                @click="openRefundDialog(item)"
+              >
+                Refund
+              </v-btn>
+            </div>
+          </template>
+        </v-data-table>
+      </template>
+
+      <EmptyState
+        v-else
+        title="No transactions found"
+        subtitle="Try changing the search keyword or selected status filter to see more results."
+      />
     </v-card>
 
     <v-dialog v-model="refundDialog" max-width="480">
-      <v-card>
+      <v-card rounded="lg">
         <v-card-title>Request Refund</v-card-title>
+
         <v-card-text>
           Are you sure you want to request a refund for
           <strong>{{ selectedTransaction?.id }}</strong>?
         </v-card-text>
+
         <v-card-actions>
           <v-spacer />
-          <v-btn variant="text" @click="refundDialog = false">Cancel</v-btn>
-          <v-btn color="error" @click="submitRefund">Confirm Refund</v-btn>
+          <v-btn variant="text" @click="refundDialog = false">
+            Cancel
+          </v-btn>
+          <v-btn color="error" @click="submitRefund">
+            Confirm Refund
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
