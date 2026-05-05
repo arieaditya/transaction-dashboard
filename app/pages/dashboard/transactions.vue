@@ -19,6 +19,48 @@ const headers = [
   { title: 'Actions', key: 'actions', sortable: false }
 ]
 
+const summary = computed(() => {
+  const totalTransactions = transactions.length
+  const paidTransactions = transactions.filter((item) => item.status === 'PAID').length
+  const refundedTransactions = transactions.filter((item) => item.status === 'REFUNDED').length
+  const totalProcessedAmount = transactions
+    .filter((item) => item.status === 'PAID' || item.status === 'REFUNDED')
+    .reduce((sum, item) => sum + item.amount, 0)
+
+  return [
+    {
+      title: 'Total Transactions',
+      value: totalTransactions.toString(),
+      subtitle: 'All recorded transaction rows',
+      icon: 'mdi-swap-horizontal',
+      color: 'primary'
+    },
+    {
+      title: 'Paid Transactions',
+      value: paidTransactions.toString(),
+      subtitle: 'Successful captured payments',
+      icon: 'mdi-check-circle-outline',
+      color: 'success'
+    },
+    {
+      title: 'Refunded',
+      value: refundedTransactions.toString(),
+      subtitle: 'Transactions already refunded',
+      icon: 'mdi-cash-refund',
+      color: 'info'
+    },
+    {
+      title: 'Processed Amount',
+      value: formatCurrency(totalProcessedAmount),
+      subtitle: 'Paid and refunded total volume',
+      icon: 'mdi-cash-multiple',
+      color: 'warning'
+    }
+  ]
+})
+
+const selectedMethod = ref<'ALL' | 'VA_BCA' | 'QRIS' | 'EWALLET' | 'CARD'>('ALL')
+const methodOptions = ['ALL', 'VA_BCA', 'QRIS', 'EWALLET', 'CARD'] as const
 const statusOptions = ['ALL', 'PAID', 'PENDING', 'FAILED', 'REFUNDED'] as const
 
 const filteredTransactions = computed(() => {
@@ -27,12 +69,16 @@ const filteredTransactions = computed(() => {
 
     const matchesSearch =
       item.id.toLowerCase().includes(keyword) ||
-      item.customerName.toLowerCase().includes(keyword)
+      item.customerName.toLowerCase().includes(keyword) ||
+      item.email.toLowerCase().includes(keyword)
 
     const matchesStatus =
       selectedStatus.value === 'ALL' || item.status === selectedStatus.value
 
-    return matchesSearch && matchesStatus
+    const matchesMethod =
+      selectedMethod.value === 'ALL' || item.paymentMethod === selectedMethod.value
+
+    return matchesSearch && matchesStatus && matchesMethod
   })
 })
 
@@ -53,6 +99,11 @@ const submitRefund = () => {
   snackbarText.value = `Refund requested for ${selectedTransaction.value?.id}`
   snackbar.value = true
 }
+
+const hasActiveFilters = computed(() => {
+  return search.value !== '' || selectedStatus.value !== 'ALL' || selectedMethod.value !== 'ALL'
+})
+
 </script>
 
 <template>
@@ -68,9 +119,41 @@ const submitRefund = () => {
       </template>
     </PageHeader>
 
+    <v-row class="mb-2">
+      <v-col
+        v-for="item in summary"
+        :key="item.title"
+        cols="12"
+        sm="6"
+        lg="3"
+      >
+        <v-card rounded="lg" class="pa-4 h-100">
+          <div class="d-flex align-start justify-space-between mb-4">
+            <div>
+              <div class="text-overline text-medium-emphasis">
+                {{ item.title }}
+              </div>
+
+              <div class="text-h5 font-weight-bold">
+                {{ item.value }}
+              </div>
+            </div>
+
+            <v-avatar :color="item.color" variant="tonal" size="40">
+              <v-icon>{{ item.icon }}</v-icon>
+            </v-avatar>
+          </div>
+
+          <div class="text-body-2 text-medium-emphasis">
+            {{ item.subtitle }}
+          </div>
+        </v-card>
+      </v-col>
+    </v-row>
+
     <v-card class="pa-4 mb-4" rounded="lg">
       <v-row>
-        <v-col cols="12" md="8">
+        <v-col cols="12" md="4">
           <v-text-field
             v-model="search"
             label="Search by transaction ID or customer"
@@ -86,6 +169,17 @@ const submitRefund = () => {
             v-model="selectedStatus"
             :items="statusOptions"
             label="Filter by status"
+            variant="outlined"
+            density="comfortable"
+            hide-details
+          />
+        </v-col>
+
+        <v-col cols="12" md="4">
+          <v-select
+            v-model="selectedMethod"
+            :items="methodOptions"
+            label="Filter by payment method"
             variant="outlined"
             density="comfortable"
             hide-details
@@ -135,8 +229,10 @@ const submitRefund = () => {
 
       <EmptyState
         v-else
-        title="No transactions found"
-        subtitle="Try changing the search keyword or selected status filter to see more results."
+        :title="hasActiveFilters ? 'No matching transactions' : 'No transactions yet'"
+        :subtitle="hasActiveFilters
+          ? 'Try changing the search keyword, payment status, or payment method filter.'
+          : 'Transactions will appear here once payment activity starts coming in.'"
       />
     </v-card>
 
