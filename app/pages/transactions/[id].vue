@@ -1,8 +1,5 @@
-
 <script setup lang="ts">
-import { useRoute } from 'nuxt/app'
-import { computed } from 'vue'
-import { transactions } from '../../data/transactions'
+import { transactions } from '~/data/transactions'
 
 const route = useRoute()
 
@@ -16,63 +13,138 @@ const formatCurrency = (amount?: number) =>
     currency: 'IDR',
     maximumFractionDigits: 0
   }).format(amount ?? 0)
+
+const detailItems = computed(() => {
+  if (!transaction.value) return []
+
+  return [
+    {
+      label: 'Customer Name',
+      value: transaction.value.customerName
+    },
+    {
+      label: 'Email',
+      value: transaction.value.email
+    },
+    {
+      label: 'Payment Method',
+      value: transaction.value.paymentMethod
+    },
+    {
+      label: 'Created At',
+      value: transaction.value.createdAt
+    },
+    {
+      label: 'Refundable',
+      value: transaction.value.refundable ? 'Yes' : 'No'
+    }
+  ]
+})
 </script>
 
 <template>
   <v-container class="py-8">
-    <v-btn
-      variant="text"
-      to="/dashboard/transactions"
-      class="mb-4"
-    >
-      Back to transactions
-    </v-btn>
+    <div class="mb-6">
+      <v-btn
+        variant="text"
+        prepend-icon="mdi-arrow-left"
+        to="/dashboard/transactions"
+      >
+        Back to transactions
+      </v-btn>
+    </div>
 
-    <v-card v-if="transaction" class="pa-6">
-      <div class="d-flex align-center justify-space-between mb-4">
-        <div>
-          <h1 class="text-h5 font-weight-bold">
-            Transaction {{ transaction.id }}
-          </h1>
-          <p class="text-medium-emphasis">
-            Transaction detail preview page
-          </p>
-        </div>
-
-        <StatusChip :status="transaction.status" />
-      </div>
-
-      <v-divider class="mb-4" />
+    <template v-if="transaction">
+      <PageHeader
+        :title="transaction.id"
+        subtitle="Review transaction information and payment status."
+      >
+        <template #default>
+          <StatusChip :status="transaction.status" />
+        </template>
+      </PageHeader>
 
       <v-row>
-        <v-col cols="12" md="6">
-          <p class="text-caption text-medium-emphasis">Customer Name</p>
-          <p class="text-body-1 mb-4">{{ transaction.customerName }}</p>
+        <v-col cols="12" md="8">
+          <v-card rounded="lg" class="pa-6 mb-4">
+            <div class="d-flex align-center justify-space-between mb-4">
+              <div>
+                <div class="text-overline text-medium-emphasis">
+                  Transaction Amount
+                </div>
+                <div class="text-h4 font-weight-bold">
+                  {{ formatCurrency(transaction.amount) }}
+                </div>
+              </div>
 
-          <p class="text-caption text-medium-emphasis">Email</p>
-          <p class="text-body-1 mb-4">{{ transaction.email }}</p>
+              <v-btn
+                color="error"
+                variant="tonal"
+                :disabled="!transaction.refundable"
+              >
+                Request Refund
+              </v-btn>
+            </div>
 
-          <p class="text-caption text-medium-emphasis">Payment Method</p>
-          <p class="text-body-1 mb-4">{{ transaction.paymentMethod }}</p>
+            <v-divider class="mb-4" />
+
+            <v-list lines="two" class="pa-0">
+              <v-list-item
+                v-for="item in detailItems"
+                :key="item.label"
+                :title="item.label"
+                :subtitle="item.value"
+                class="px-0"
+              />
+            </v-list>
+          </v-card>
         </v-col>
 
-        <v-col cols="12" md="6">
-          <p class="text-caption text-medium-emphasis">Amount</p>
-          <p class="text-body-1 mb-4">{{ formatCurrency(transaction.amount) }}</p>
+        <v-col cols="12" md="4">
+          <v-card rounded="lg" class="pa-6 mb-4">
+            <div class="text-overline text-medium-emphasis mb-2">
+              Status Summary
+            </div>
 
-          <p class="text-caption text-medium-emphasis">Created At</p>
-          <p class="text-body-1 mb-4">{{ transaction.createdAt }}</p>
+            <div class="d-flex align-center ga-2 mb-4">
+              <StatusChip :status="transaction.status" />
+            </div>
 
-          <p class="text-caption text-medium-emphasis">Refundable</p>
-          <p class="text-body-1 mb-4">
-            {{ transaction.refundable ? 'Yes' : 'No' }}
-          </p>
+            <v-alert
+              type="info"
+              variant="tonal"
+              density="comfortable"
+            >
+              This page is prepared as a public-friendly transaction detail view
+              for SSR use later in the sprint.
+            </v-alert>
+          </v-card>
+
+          <v-card rounded="lg" class="pa-6">
+            <div class="text-overline text-medium-emphasis mb-2">
+              Next Steps
+            </div>
+
+            <div class="d-flex flex-column ga-2">
+              <v-btn variant="outlined" block>
+                Download Receipt
+              </v-btn>
+              <v-btn variant="outlined" block>
+                Contact Support
+              </v-btn>
+            </div>
+          </v-card>
         </v-col>
       </v-row>
-    </v-card>
+    </template>
 
-    <v-alert v-else type="error" variant="tonal">
-      Transaction not found.
-    </v-alert>
+    <v-card v-else rounded="lg" class="pa-6">
+      <v-alert
+        type="error"
+        variant="tonal"
+        title="Transaction not found"
+        text="The requested transaction ID does not exist in the current dataset."
+      />
+    </v-card>
   </v-container>
 </template>
