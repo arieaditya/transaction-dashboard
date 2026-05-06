@@ -1,11 +1,14 @@
 <script setup lang="ts">
-import { transactions } from '~/data/transactions'
+// import { transactions } from '~/data/transactions'
+import type { Transaction } from '~/types/transaction'
 
 const route = useRoute()
 
-const transaction = computed(() => {
-  return transactions.find((item) => item.id === route.params.id)
-})
+const {
+  data: transaction,
+  pending,
+  error
+} = await useFetch<Transaction>(`http://localhost:3001/transactions/${route.params.id}`)
 
 const formatCurrency = (amount?: number) =>
   new Intl.NumberFormat('id-ID', {
@@ -54,7 +57,20 @@ const detailItems = computed(() => {
       </v-btn>
     </div>
 
-    <template v-if="transaction">
+    <v-card v-if="pending" rounded="lg" class="pa-6">
+      Loading transaction detail...
+    </v-card>
+
+    <v-card v-else-if="error" rounded="lg" class="pa-6">
+      <v-alert
+        type="error"
+        variant="tonal"
+        title="Transaction not found"
+        text="The requested transaction could not be loaded from the API."
+      />
+    </v-card>
+
+   <template v-else-if="transaction">
       <PageHeader
         :title="transaction.id"
         subtitle="Review transaction information and payment status."
@@ -138,13 +154,5 @@ const detailItems = computed(() => {
       </v-row>
     </template>
 
-    <v-card v-else rounded="lg" class="pa-6">
-      <v-alert
-        type="error"
-        variant="tonal"
-        title="Transaction not found"
-        text="The requested transaction ID does not exist in the current dataset."
-      />
-    </v-card>
   </v-container>
 </template>

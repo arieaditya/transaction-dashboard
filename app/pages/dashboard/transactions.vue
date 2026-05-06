@@ -1,6 +1,14 @@
 <script setup lang="ts">
-import { transactions } from '~/data/transactions'
 import type { Transaction, TransactionStatus } from '~/types/transaction'
+
+const {
+  data: transactionsData,
+  pending,
+  error,
+  refresh
+} = await useFetch<Transaction[]>('http://localhost:3001/transactions')
+
+const transactions = computed(() => transactionsData.value ?? [])
 
 const search = ref('')
 const selectedStatus = ref<'ALL' | TransactionStatus>('ALL')
@@ -19,11 +27,13 @@ const headers = [
   { title: 'Actions', key: 'actions', sortable: false }
 ]
 
+
+
 const summary = computed(() => {
-  const totalTransactions = transactions.length
-  const paidTransactions = transactions.filter((item) => item.status === 'PAID').length
-  const refundedTransactions = transactions.filter((item) => item.status === 'REFUNDED').length
-  const totalProcessedAmount = transactions
+  const totalTransactions = transactions.value.length
+  const paidTransactions = transactions.value.filter((item) => item.status === 'PAID').length
+  const refundedTransactions = transactions.value.filter((item) => item.status === 'REFUNDED').length
+  const totalProcessedAmount = transactions.value
     .filter((item) => item.status === 'PAID' || item.status === 'REFUNDED')
     .reduce((sum, item) => sum + item.amount, 0)
 
@@ -64,7 +74,7 @@ const methodOptions = ['ALL', 'VA_BCA', 'QRIS', 'EWALLET', 'CARD'] as const
 const statusOptions = ['ALL', 'PAID', 'PENDING', 'FAILED', 'REFUNDED'] as const
 
 const filteredTransactions = computed(() => {
-  return transactions.filter((item) => {
+  return transactions.value.filter((item) => {
     const keyword = search.value.toLowerCase()
 
     const matchesSearch =
@@ -82,6 +92,10 @@ const filteredTransactions = computed(() => {
   })
 })
 
+const hasActiveFilters = computed(() => {
+  return search.value !== '' || selectedStatus.value !== 'ALL' || selectedMethod.value !== 'ALL'
+})
+
 const formatCurrency = (amount: number) =>
   new Intl.NumberFormat('id-ID', {
     style: 'currency',
@@ -94,19 +108,41 @@ const openRefundDialog = (transaction: Transaction) => {
   refundDialog.value = true
 }
 
-const submitRefund = () => {
-  refundDialog.value = false
-  snackbarText.value = `Refund requested for ${selectedTransaction.value?.id}`
-  snackbar.value = true
+const submitRefund = async () => {
+  if (!selectedTransaction.value) return
+
+  try {
+    await $fetch(`http://localhost:3001/transactions/${selectedTransaction.value.id}/refund`, {
+      method: 'POST',
+      body: {
+        reason: 'Manual refund request from dashboard'
+      }
+    })
+
+    refundDialog.value = false
+    snackbarText.value = `Refund requested for ${selectedTransaction.value.id}`
+    snackbar.value = true
+
+    await refresh()
+  } catch (err) {
+    snackbarText.value = 'Failed to create refund'
+    snackbar.value = true
+  }
 }
 
-const hasActiveFilters = computed(() => {
-  return search.value !== '' || selectedStatus.value !== 'ALL' || selectedMethod.value !== 'ALL'
-})
 
 </script>
 
 <template>
+  <v-alert
+    v-if="error"
+    type="error"
+    variant="tonal"
+    class="mb-4"
+    title="Failed to load transactions"
+    text="Please make sure the API server is running on port 3001."
+  />
+
   <v-container class="py-8">
     <PageHeader
       title="Transactions"
@@ -189,7 +225,11 @@ const hasActiveFilters = computed(() => {
     </v-card>
 
     <v-card rounded="lg">
-      <template v-if="filteredTransactions.length">
+      <div v-if="pending" class="pa-6 text-medium-emphasis">
+        Loading transactions...
+      </div>
+
+      <template v-else-if="filteredTransactions.length">
         <v-data-table
           :headers="headers"
           :items="filteredTransactions"
