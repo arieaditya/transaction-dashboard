@@ -247,12 +247,6 @@ Empty or error state
 
 <img width="1443" height="805" alt="Screenshot 2026-05-09 at 19 11 15" src="https://github.com/user-attachments/assets/511ea29d-3fdd-4fad-ad76-281037726810" />
 
-Example:
-
-```md
-
-```
-
 ## Current Status
 
 ### Implemented
@@ -278,4 +272,4 @@ I built this project as focused practice for a full-stack workflow involving Vue
 
 ## Notes
 
-This project is intended for local development and portfolio/demo use. Environment variables should not be committed, and generated/dependency folders such as `node_modules`, `.nuxt`, and build output should be ignored in Git. [web:338][web:340]
+This project is intended for local development and portfolio/demo use. Environment variables should not be committed, and generated/dependency folders such as `node_modules`, `.nuxt`, and build output should be ignored in Git.
