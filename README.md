@@ -1,3 +1,5 @@
+<img width="1445" height="996" alt="Screenshot 2026-05-09 at 16 46 30" src="https://github.com/user-attachments/assets/719ee81c-630a-4c19-9a72-8b8b9b90c74e" />
+
 # Transaction Dashboard Fullstack Prep
 
 A small full-stack transaction operations dashboard built to practice and demonstrate Vue/Nuxt, Node.js, and PostgreSQL integration in a realistic payment-operations workflow. The project includes a Nuxt 3 + Vuetify frontend, an Express API, and a PostgreSQL database with transaction and refund flows. [cite:23][cite:17]
