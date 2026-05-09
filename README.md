@@ -233,12 +233,17 @@ PostgreSQL joins combine rows from related tables based on matching keys, which 
 
 ## Screenshots
 
-Add screenshots here after capture:
+Transaction Dashboard Overview
 
-- Dashboard overview
-- Transaction detail page
-- Refund flow
-- Empty or error state
+<img width="1445" height="996" alt="Screenshot 2026-05-09 at 16 46 30" src="https://github.com/user-attachments/assets/719ee81c-630a-4c19-9a72-8b8b9b90c74e" />
+
+Refund flow
+
+<img width="1441" height="992" alt="Screenshot 2026-05-09 at 19 11 55" src="https://github.com/user-attachments/assets/4d286a17-c7c2-4304-8f74-ecf3028406a4" />
+
+Empty or error state
+
+<img width="1443" height="805" alt="Screenshot 2026-05-09 at 19 11 15" src="https://github.com/user-attachments/assets/511ea29d-3fdd-4fad-ad76-281037726810" />
 
 Example:
 
