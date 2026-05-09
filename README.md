@@ -2,7 +2,7 @@
 
 # Transaction Dashboard Fullstack Prep
 
-A small full-stack transaction operations dashboard built to practice and demonstrate Vue/Nuxt, Node.js, and PostgreSQL integration in a realistic payment-operations workflow. The project includes a Nuxt 3 + Vuetify frontend, an Express API, and a PostgreSQL database with transaction and refund flows. [cite:23][cite:17]
+A small full-stack transaction operations dashboard built to practice and demonstrate Vue/Nuxt, Node.js, and PostgreSQL integration in a realistic payment-operations workflow. The project includes a Nuxt 3 + Vuetify frontend, an Express API, and a PostgreSQL database with transaction and refund flows.
 
 ## Overview
 
@@ -14,7 +14,7 @@ This project simulates an internal payment operations dashboard where an operato
 - request a refund
 - read data from PostgreSQL through an Express API
 
-The goal of this project is to strengthen practical full-stack skills in areas I wanted to improve: Vue/Nuxt data fetching, TypeScript in Vue, Node.js backend routing, and PostgreSQL relational queries. [cite:23]
+The goal of this project is to strengthen practical full-stack skills in areas I wanted to improve: Vue/Nuxt data fetching, TypeScript in Vue, Node.js backend routing, and PostgreSQL relational queries.
 
 ## Tech Stack
 
@@ -24,18 +24,18 @@ The goal of this project is to strengthen practical full-stack skills in areas I
 - Vue 3
 - Vuetify
 - TypeScript
-- `useFetch` / `$fetch` for API integration [web:341][web:295]
+- `useFetch` / `$fetch` for API integration
 
 ### Backend
 
 - Node.js
 - Express
-- PostgreSQL client via `pg` Pool [web:283][web:345]
+- PostgreSQL client via `pg` Pool
 
 ### Database
 
 - PostgreSQL
-- Relational schema with `customers`, `transactions`, and `refunds` tables [web:267][web:268]
+- Relational schema with `customers`, `transactions`, and `refunds` tables
 
 ## Features
 
@@ -45,7 +45,7 @@ The goal of this project is to strengthen practical full-stack skills in areas I
 - Refund request flow
 - PostgreSQL-backed transaction data
 - Joined customer + transaction query results from backend
-- Basic loading, empty, and error states in the frontend [web:295][web:161]
+- Basic loading, empty, and error states in the frontend 
 
 ## Project Structure
 
@@ -96,7 +96,7 @@ cd ..
 
 ## Database Setup
 
-Make sure PostgreSQL is installed and running locally. Then create a database named `transaction_dashboard`, apply the schema, and seed sample data. PostgreSQL’s standard workflow is to create the database first and then run `CREATE TABLE` and `INSERT` scripts against it. [web:268][web:267]
+Make sure PostgreSQL is installed and running locally. Then create a database named `transaction_dashboard`, apply the schema, and seed sample data. PostgreSQL’s standard workflow is to create the database first and then run `CREATE TABLE` and `INSERT` scripts against it.
 
 ### 1. Create database
 
@@ -201,9 +201,9 @@ Example request body:
 
 ## Architecture Notes
 
-The frontend uses Nuxt 3 with Vuetify for the UI layer and `useFetch()` for loading data from the API, which is an SSR-friendly Nuxt composable for fetching endpoint data. User-triggered mutations such as refund actions use `$fetch()` and then refresh the dashboard state. [web:341][web:295]
+The frontend uses Nuxt 3 with Vuetify for the UI layer and `useFetch()` for loading data from the API, which is an SSR-friendly Nuxt composable for fetching endpoint data. User-triggered mutations such as refund actions use `$fetch()` and then refresh the dashboard state.
 
-The backend uses Express route modules and a PostgreSQL connection pool via `pg`. Database queries use joins between `transactions` and `customers` so the frontend receives display-ready transaction rows in a single response. Pooling is the recommended pattern in node-postgres for reusing database connections efficiently. [web:283][web:292][web:345]
+The backend uses Express route modules and a PostgreSQL connection pool via `pg`. Database queries use joins between `transactions` and `customers` so the frontend receives display-ready transaction rows in a single response. Pooling is the recommended pattern in node-postgres for reusing database connections efficiently.
 
 The PostgreSQL schema is intentionally small:
 
@@ -211,7 +211,7 @@ The PostgreSQL schema is intentionally small:
 - `transactions` stores payment records
 - `refunds` stores refund events linked to transactions
 
-This structure is enough to support relational queries, detail views, and refund workflows without overcomplicating the demo. [web:267][web:268]
+This structure is enough to support relational queries, detail views, and refund workflows without overcomplicating the demo.
 
 ## Example SQL Join
 
@@ -231,7 +231,7 @@ JOIN customers c ON c.id = t.customer_id
 ORDER BY t.created_at DESC;
 ```
 
-PostgreSQL joins combine rows from related tables based on matching keys, which is why the schema uses foreign keys between customers, transactions, and refunds. [web:276][web:278]
+PostgreSQL joins combine rows from related tables based on matching keys, which is why the schema uses foreign keys between customers, transactions, and refunds.
 
 ## Screenshots
 
@@ -258,7 +258,7 @@ Example:
 ### Implemented
 
 - Frontend dashboard layout
-- Transaction list and detail pages
+- Transaction list pages with detail slider
 - Express API routes
 - PostgreSQL schema and seed data
 - Refund endpoint
@@ -268,14 +268,13 @@ Example:
 
 - Better loading skeletons
 - Authentication or protected routes
-- Pagination from backend
 - Sorting and query params
 - Docker setup
 - Deployment guide
 
 ## Why I Built This
 
-I built this project as focused practice for a full-stack workflow involving Vue/Nuxt, Node.js, and PostgreSQL, especially around internal dashboard patterns and transaction operations. It is meant to be a compact but realistic demonstration of frontend, backend, and database integration rather than a large production application. [cite:23][cite:17]
+I built this project as focused practice for a full-stack workflow involving Vue/Nuxt, Node.js, and PostgreSQL, especially around internal dashboard patterns and transaction operations. It is meant to be a compact but realistic demonstration of frontend, backend, and database integration rather than a large production application.
 
 ## Notes
 
