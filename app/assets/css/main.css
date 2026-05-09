@@ -1,0 +1,80 @@
+/* Pijar Payments — Transaction Dashboard
+ * Warm neutrals, single accent, tabular numbers, crisp 1px hairlines.
+ */
+
+:root {
+  --accent-h: 254;
+  --accent: oklch(0.55 0.16 var(--accent-h));
+  --accent-soft: oklch(0.96 0.03 var(--accent-h));
+  --accent-fg: #fff;
+
+  --bg:        #FAF9F6;
+  --surface:   #FFFFFF;
+  --surface-2: #F5F3EE;
+  --fg:        #15161A;
+  --fg-muted:  #5C5D63;
+  --fg-faint:  #8A8B91;
+  --border:    #E8E5DD;
+  --border-strong: #D7D3C8;
+
+  --ok:       oklch(0.62 0.14 150);
+  --ok-soft:  oklch(0.95 0.04 150);
+  --warn:     oklch(0.72 0.14 75);
+  --warn-soft:oklch(0.96 0.05 75);
+  --err:      oklch(0.58 0.18 25);
+  --err-soft: oklch(0.95 0.04 25);
+  --info:     oklch(0.6 0.13 240);
+  --info-soft:oklch(0.96 0.03 240);
+
+  --radius:    10px;
+  --radius-sm: 6px;
+  --radius-lg: 14px;
+
+  --row-h: 64px;
+  --shadow-sm:  0 1px 2px rgba(20,22,30,.04), 0 0 0 1px rgba(20,22,30,.04);
+  --shadow-pop: 0 1px 2px rgba(20,22,30,.06), 0 12px 32px -8px rgba(20,22,30,.12), 0 0 0 1px rgba(20,22,30,.06);
+
+  --font-sans: "Inter Tight", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "SF Mono", ui-monospace, Menlo, monospace;
+}
+
+[data-density="compact"] { --row-h: 44px; }
+[data-density="single"]  { --row-h: 52px; }
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  background: var(--bg) !important;
+  color: var(--fg);
+  font-family: var(--font-sans);
+  font-feature-settings: "ss01", "cv11", "tnum";
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+button { font: inherit; color: inherit; cursor: default; }
+input  { font: inherit; color: inherit; }
+
+.tnum { font-variant-numeric: tabular-nums; }
+.mono { font-family: var(--font-mono); }
+
+/* ---------- Pulse animation ---------- */
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--warn) 35%, transparent); }
+  50%       { box-shadow: 0 0 0 4px color-mix(in srgb, var(--warn) 0%, transparent); }
+}
+
+@keyframes rise {
+  from { opacity: 0; transform: translate(-50%, 8px); }
+}
+
+@keyframes rise-toast {
+  from { opacity: 0; transform: translateY(8px); }
+}
+
+@keyframes fade    { from { opacity: 0; } }
+@keyframes slidein { from { transform: translateX(20px); opacity: 0; } }
+@keyframes pop     { from { opacity: 0; transform: translate(-50%, -46%) scale(.96); } }
